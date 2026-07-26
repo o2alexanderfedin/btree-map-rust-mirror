@@ -1,6 +1,8 @@
 use super::*;
 use crate::src::btree::{Btree, Node};
 
+pub const BTREE_KEY_SIZE: i32 = 10;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub(crate) struct Value {

@@ -1,5 +1,5 @@
 use super::*;
-use crate::src::btree_h::{BtreeT, EntryListT, EntryT, NodeT, ValueT};
+use crate::src::btree_h::{BtreeT, EntryListT, EntryT, NodeT, ValueT, BTREE_KEY_SIZE};
 use crate::{
     __builtin___memcpy_chk, __builtin___memset_chk, __builtin_object_size, free, malloc, memcmp,
 };
@@ -54,11 +54,11 @@ pub(crate) extern "C" fn calc_key_hash(key: *mut (), key_len: u64) -> u32 {
                 break '__b0;
             }
             '__c0: loop {
-                key_sum = key_sum % 4294967295u32;
+                key_sum = key_sum % u32::MAX;
                 key_sum = key_sum.wrapping_add(
                     ((unsafe { *byte_key.add(i as usize) } as u64)
                         .wrapping_mul(i.wrapping_add(1 as u64))
-                        % 4294967295u32 as u64) as u32,
+                        % u32::MAX as u64) as u32,
                 );
                 break '__c0;
             }
@@ -80,7 +80,7 @@ pub(crate) extern "C" fn new_node(
     value_len: u64,
 ) -> *mut NodeT {
     let node: *mut NodeT = btree_malloc(core::mem::size_of::<NodeT>() as u64) as *mut NodeT;
-    unsafe { (*node).key_len = min_size(10 as u64, key_len) };
+    unsafe { (*node).key_len = min_size(BTREE_KEY_SIZE as u64, key_len) };
     unsafe {
         __builtin___memcpy_chk(
             unsafe { &raw mut (*node).p_key[0 as usize] } as *mut u8 as *mut (),
@@ -119,7 +119,7 @@ pub(crate) extern "C" fn find_value(
     key: *mut (),
     mut key_len: u64,
 ) -> *mut ValueT {
-    key_len = min_size(10 as u64, key_len);
+    key_len = min_size(BTREE_KEY_SIZE as u64, key_len);
     if (*self__1).key_hash == key_hash {
         if unsafe {
             memcmp(
@@ -158,7 +158,7 @@ pub(crate) extern "C" fn find_entry(self_: &BtreeT, key: *mut (), mut key_len: u
     if (*self_).node as *mut () == 0 as *mut () {
         return 0 as *mut () as *mut ValueT;
     }
-    key_len = min_size(10 as u64, key_len);
+    key_len = min_size(BTREE_KEY_SIZE as u64, key_len);
     let key_hash: u32 = calc_key_hash(key, key_len);
     return find_value(unsafe { &mut *(*self_).node }, key_hash, key, key_len);
 }
@@ -249,7 +249,7 @@ pub(crate) extern "C" fn delete_node(
     if root as *mut () == 0 as *mut () {
         return 0 as *mut () as *mut NodeT;
     }
-    key_len = min_size(10 as u64, key_len);
+    key_len = min_size(BTREE_KEY_SIZE as u64, key_len);
     if key_hash < unsafe { (*root).key_hash } {
         unsafe {
             (*root).child_left = delete_node(unsafe { (*root).child_left }, key_hash, key, key_len)
@@ -331,7 +331,7 @@ pub(crate) extern "C" fn remove_entry(self_: *mut BtreeT, key: *mut (), mut key_
     if self_ as *mut () == 0 as *mut () {
         return;
     }
-    key_len = min_size(10 as u64, key_len);
+    key_len = min_size(BTREE_KEY_SIZE as u64, key_len);
     let key_hash: u32 = calc_key_hash(key, key_len);
     unsafe { (*self_).node = delete_node(unsafe { (*self_).node }, key_hash, key, key_len) };
 }
