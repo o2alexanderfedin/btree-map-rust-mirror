@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub(crate) struct Node {
     pub(crate) key_hash: u32,
     pub(crate) p_key: [u8; 10],
@@ -16,7 +16,7 @@ pub(crate) struct Node {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub(crate) struct Btree {
     pub(crate) node: *mut NodeT,
 }
@@ -62,12 +62,7 @@ pub(crate) extern "C" fn calc_key_hash(key: *mut (), key_len: u64) -> u32 {
                 );
                 break '__c0;
             }
-            {
-                let __p = &mut i;
-                let __t = *__p;
-                *__p = (*__p).wrapping_add(1);
-                __t
-            };
+            i = i.wrapping_add(1);
         }
     }
     return key_sum;
@@ -423,12 +418,7 @@ pub(crate) extern "C" fn free_entry_list(list: &mut *mut EntryListT) -> () {
                 );
                 break '__c2;
             }
-            {
-                let __p = &mut i;
-                let __t = *__p;
-                *__p = (*__p).wrapping_add(1);
-                __t
-            };
+            i = i.wrapping_add(1);
         }
     }
     btree_free(unsafe { (**list).entries } as *mut ());

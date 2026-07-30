@@ -929,7 +929,7 @@ pub(crate) extern "C" fn __main_inner() -> i32 {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub(crate) struct CustomKeyN10customKey {
     pub(crate) key: u32,
     pub(crate) key2: u32,
@@ -938,7 +938,7 @@ pub(crate) struct CustomKeyN10customKey {
 pub(crate) type CustomKeyT = CustomKeyN10customKey;
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub(crate) struct CustomValueN12customValue {
     pub(crate) value: u32,
     pub(crate) value2: u32,
